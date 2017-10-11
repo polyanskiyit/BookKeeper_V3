@@ -1,0 +1,131 @@
+﻿@model BookKeeper.Models.Book
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    //    Save Scroll Position
+    $(document).scroll(function() {
+        localStorage['scrollTop'] = $(document).scrollTop();
+    });
+
+    $(document).ready(function () {
+        $(document).scrollTop(localStorage['scrollTop']);
+    });
+</script>
+
+<div class="container">
+    <div class="panel-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+            @*    Print title for colums    *@
+            <tr>
+                @foreach (var modelMetadataProperty in ViewData.ModelMetadata.Properties)
+                {
+                    if (modelMetadataProperty.PropertyName != "Id")
+                    {
+                        if (modelMetadataProperty.PropertyName == "Description")
+                        {
+                            <th style="text-align: left; vertical-align: top" class="col-sm-3">@(modelMetadataProperty.DisplayName ?? modelMetadataProperty.PropertyName)</th>
+                        }
+                        else
+                        {
+                            <th style="text-align: left; vertical-align: top" class="col-sm-1">@(modelMetadataProperty.DisplayName ?? modelMetadataProperty.PropertyName)</th>
+                        }
+                    }
+                }
+                <th class="col-sm-1 btn__control__blockCol"></th>
+            </tr>
+            </thead>
+
+            <tbody>
+            @using (Html.BeginForm())
+            {
+                foreach (var b in ViewBag.Books)
+                {
+                    if (ViewBag.Id == b.Id)
+                    {
+                        //  edit book local
+                        <tr>
+                            @foreach (var property in ViewData.ModelMetadata.Properties)
+                            {
+                                if (property.PropertyName != "Id")
+                                {
+                                    <td>
+                                        @Html.TextArea(property.PropertyName, null, new {@class = "form-control block_resize_textarea", rows = 5})
+                                        @Html.ValidationMessage(property.PropertyName)
+                                    </td>
+                                }
+                            }
+                            <td>
+                                <input class="btn btn-success main__page_btn" type="submit" value="Save"/>
+                                <a class="btn btn-warning main__page_btn" href="/Home/">Cansel</a>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        //  print book info
+                        <tr>
+                            @foreach (var property in ViewData.ModelMetadata.Properties)
+                            {
+                                if (property.PropertyName != "Id")
+                                {
+                                    <td>
+                                        @b[property.PropertyName]
+                                    </td>
+                                }
+                            }
+                            <td>
+                                @Ajax.ActionLink("Edit", "LocalEditBook", new {id = b.Id}, new AjaxOptions(), new {@class = "btn btn-warning main__page_btn" })
+                                <a class="main__page_btn btn btn-danger"
+                                   onclick="return confirm('Ви впевнені що хочете видалити вибрану книгу?') ? true : false;"
+                                   href="/Home/Delete/@b.Id">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+
+                //  row for new local book
+                if (ViewBag.NewBookFlag == 1)
+                {
+                    <tr>
+                        @foreach (var property in ViewData.ModelMetadata.Properties)
+                        {
+                            if (property.PropertyName != "Id")
+                            {
+                                <td>
+                                    @Html.TextArea(property.PropertyName, null, new {@class = "form-control block_resize_textarea", rows = 5, placeholder = property.DisplayName})
+                                    @Html.ValidationMessage(property.PropertyName)
+                                </td>
+                            }
+                        }
+                        <td>
+                            <input class="btn btn-success main__page_btn" type="submit" value="Add"/>
+                            <a class="btn btn-warning main__page_btn" href="/Home/">Cansel</a>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+        <br/>
+        <br/>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+
+    </div>
+</div>
+<div class="panel-footer footerFixed">
+    <a class="btn btn-success" href="/Home/CreateLocal" onclick="$(document).scrollTop(body.scrollHeight)">Add new Book to Collection Local</a>
+</div>
